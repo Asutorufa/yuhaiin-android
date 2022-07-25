@@ -120,7 +120,9 @@ class YuhaiinVpnService : VpnService() {
         setState(State.DISCONNECTING)
 
         try {
-            stopForeground(Service.STOP_FOREGROUND_REMOVE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(Service.STOP_FOREGROUND_REMOVE)
+            else stopForeground(true)
+
             mInterface?.close()
             app.stop()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -204,7 +206,7 @@ class YuhaiinVpnService : VpnService() {
                     if (profile.hasIPv6) addRoute(this, "::/0")
                 }
             }
-            
+
             addDnsServer(PRIVATE_VLAN4_ROUTER)
             addRoute(this, profile.fakeDnsCidr)
 
@@ -253,7 +255,7 @@ class YuhaiinVpnService : VpnService() {
 
         app.start(Opts().apply {
             host = "${address}:${profile.yuhaiinPort}"
-            savepath = getExternalFilesDir("yuhaiin")!!.absolutePath
+            savepath = getExternalFilesDir("yuhaiin").toString()
             iPv6 = profile.hasIPv6
 
             if (profile.socks5ServerPort > 0) socks5 = "${address}:${profile.socks5ServerPort}"
@@ -276,7 +278,8 @@ class YuhaiinVpnService : VpnService() {
                 dnsHijacking = profile.dnsHijacking
                 // 0: fdbased, 1: channel
                 driver = 0
-                uidDumper = this@YuhaiinVpnService.uidDumper
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    uidDumper = this@YuhaiinVpnService.uidDumper
             }
 
             fun convertDNS(o: dDNS): DNS = DNS().apply {
@@ -297,7 +300,7 @@ class YuhaiinVpnService : VpnService() {
             }
         })
     }
-    
+
     private fun startNotification(name: String) {
         // Notifications on Oreo and above need a channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -308,6 +311,7 @@ class YuhaiinVpnService : VpnService() {
                     NotificationManager.IMPORTANCE_MIN
                 )
             )
+
 
 
         startForeground(

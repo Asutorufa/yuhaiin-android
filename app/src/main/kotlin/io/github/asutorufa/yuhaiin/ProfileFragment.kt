@@ -320,7 +320,7 @@ class ProfileFragment : PreferenceFragmentCompat() {
         get() {
             val packageManager = requireContext().packageManager
             val packages =
-                if (BuildConfig.VERSION_CODE >= Build.VERSION_CODES.TIRAMISU)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     packageManager.getInstalledPackages(
                         PackageManager.PackageInfoFlags.of(
                             PackageManager.GET_PERMISSIONS.toLong()
